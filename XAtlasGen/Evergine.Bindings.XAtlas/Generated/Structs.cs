@@ -84,7 +84,7 @@ namespace Evergine.Bindings.XAtlas
 	[StructLayout(LayoutKind.Sequential)]
 	public unsafe struct xatlasChartOptions
 	{
-		public  paramFunc;
+		public xatlasParameterizeFunc paramFunc;
 		public float maxChartArea;
 		public float maxBoundaryLength;
 		public float normalDeviationWeight;

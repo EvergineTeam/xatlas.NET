@@ -10,6 +10,8 @@ namespace XAtlasGen
 {
     public static class Helpers
     {
+        public static List<string> TypedefList;
+
         private static readonly Dictionary<string, string> csNameMappings = new Dictionary<string, string>()
         {
             { "bool", "bool" },
@@ -42,7 +44,7 @@ namespace XAtlasGen
 
             if (type is CppEnum enumType)
             {
-                var enumCsName = enumType.Name;
+                var enumCsName = GetCsCleanName(enumType.Name);
                 if (isPointer)
                     return enumCsName + "*";
 
@@ -51,8 +53,7 @@ namespace XAtlasGen
 
             if (type is CppTypedef typedef)
             {
-                var originalName = typedef.Name;
-                csNameMappings.TryGetValue(originalName, out string typeDefCsName);
+                var typeDefCsName = GetCsCleanName(typedef.Name);
 
                 if (isPointer)
                     return typeDefCsName + "*";
@@ -62,7 +63,7 @@ namespace XAtlasGen
 
             if (type is CppClass @class)
             {
-                var className = @class.Name;
+                var className = GetCsCleanName(@class.Name);
                 if (isPointer)
                     return className + "*";
 
@@ -276,21 +277,29 @@ namespace XAtlasGen
             }
         }
 
-        public static string ConvertEnumType(string value, out string csDataType)
+        private static string GetCsCleanName(string name)
         {
-            if (value.StartsWith("(") && value.EndsWith(")"))
+            if (csNameMappings.TryGetValue(name, out string mappedName))
             {
-                value = value.Substring(1, value.Length - 2);
+                return GetCsCleanName(mappedName);
             }
 
-            csDataType = "uint";
-            if (value.EndsWith("ULL", StringComparison.OrdinalIgnoreCase))
+            if (name.StartsWith("PFN"))
             {
-                csDataType = "ulong";
-                value = value.Replace("ULL", String.Empty);
+                return "IntPtr";
             }
 
-            return value.Replace("UL", String.Empty);
+            if (name.Contains("Flags"))
+            {
+                return name.Remove(name.Count() - 5);
+            }
+
+            if (TypedefList.Contains(name))
+            {
+                return "IntPtr";
+            }
+
+            return name;
         }
 
         public static void PrintComments(StreamWriter file, CppComment comment, string tabs = "", bool newLine = false)
@@ -323,6 +332,28 @@ namespace XAtlasGen
                 default:
                     ;
                     break;
+            }
+        }
+
+        public static object ValidParamName(string name, string type, int i)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                switch (type)
+                {
+                    case "void*":
+                        return $"ptr{i}";
+                    case "uint":
+                        return $"size{i}";
+                    case "byte*":
+                        return $"bytePtr{i}";
+                    default:
+                        return null;
+                }
+            }
+            else
+            {
+                return name;
             }
         }
     }

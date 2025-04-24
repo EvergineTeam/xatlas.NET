@@ -30,13 +30,13 @@ namespace Evergine.Bindings.XAtlas
 		public static extern void xatlasGenerate(xatlasAtlas* atlas, xatlasChartOptions* chartOptions, xatlasPackOptions* packOptions);
 
 		[DllImport("xatlas", CallingConvention = CallingConvention.Cdecl)]
-		public static extern void xatlasSetProgressCallback(xatlasAtlas* atlas,  progressFunc, void* progressUserData);
+		public static extern void xatlasSetProgressCallback(xatlasAtlas* atlas, xatlasProgressFunc progressFunc, void* progressUserData);
 
 		[DllImport("xatlas", CallingConvention = CallingConvention.Cdecl)]
-		public static extern void xatlasSetAlloc( reallocFunc,  freeFunc);
+		public static extern void xatlasSetAlloc(xatlasReallocFunc reallocFunc, xatlasFreeFunc freeFunc);
 
 		[DllImport("xatlas", CallingConvention = CallingConvention.Cdecl)]
-		public static extern void xatlasSetPrint( print, [MarshalAs(UnmanagedType.Bool)] bool verbose);
+		public static extern void xatlasSetPrint(xatlasPrintFunc print, [MarshalAs(UnmanagedType.Bool)] bool verbose);
 
 		[DllImport("xatlas", CallingConvention = CallingConvention.Cdecl)]
 		public static extern byte* xatlasAddMeshErrorString(xatlasAddMeshError error);
