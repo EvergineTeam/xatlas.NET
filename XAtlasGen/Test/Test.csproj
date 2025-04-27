@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>	  
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="horse_statue.obj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="horse_statue.obj">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Evergine.Mathematics" Version="2025.3.18.659" />
+		<PackageReference Include="Evergine.Common" Version="2025.3.18.7" />
+		<PackageReference Include="Evergine.Framework" Version="2025.3.18.7" />
+	</ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Evergine.Bindings.XAtlas\Evergine.Bindings.XAtlas.csproj" />
+  </ItemGroup>
+
+</Project>
