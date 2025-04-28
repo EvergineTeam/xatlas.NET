@@ -1,7 +1,9 @@
 # xatlas.NET
-This repository contains low-level bindings for xatlas used in Evergine
+This repository contains low-level bindings for [xatlas](https://github.com/jpcy/xatlas) used in Evergine
 
-**Lightweight C# Binding for [xatlas](https://github.com/jpcy/xatlas)**
+[![CI](https://github.com/EvergineTeam/XAtlas.NET/actions/workflows/CI.yml/badge.svg)](https://github.com/EvergineTeam/XAtlas.NET/actions/workflows/CI.yml)
+[![CD](https://github.com/EvergineTeam/XAtlas.NET/actions/workflows/CD.yml/badge.svg)](https://github.com/EvergineTeam/XAtlas.NET/actions/workflows/CD.yml)
+[![Nuget](https://img.shields.io/nuget/v/Evergine.Bindings.XAtlas?logo=nuget)](https://www.nuget.org/packages/Evergine.Bindings.XAtlas)
 
 This repository provides a **lightweight, automatically generated C# binding** for the native [xatlas](https://github.com/jpcy/xatlas) library. xatlas is an open-source library for generating high-quality UV atlases for 3D geometry. This binding allows .NET developers to access xatlas functionality in managed C# code.
 
