@@ -73,9 +73,23 @@ jobs:
       - name: Build xatlas
         run: cmake --build build --config Release
 
-      - name: Upload Artifacts
+      - name: Upload xatlas.dll (Windows)
+        if: matrix.os == 'windows-latest'
         uses: actions/upload-artifact@v4
         with:
-          name: xatlas-${{ matrix.os }}-${{ matrix.arch }}-artifacts
-          path: build
-          if-no-files-found: ignore
+          name: xatlas-${{ matrix.arch }}-dll
+          path: build/**/*.dll
+
+      - name: Upload libxatlas.so (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: xatlas-${{ matrix.arch }}-so
+          path: build/**/*.so
+
+      - name: Upload libxatlas.dylib (macOS)
+        if: matrix.os == 'macos-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: xatlas-${{ matrix.arch }}-dylib
+          path: build/**/*.dylib
