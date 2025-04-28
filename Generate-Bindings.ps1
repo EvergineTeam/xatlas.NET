@@ -42,7 +42,7 @@ else
 
 # Run generator
 LogDebug "START binding generator process"
-pushd .\XAtlasGen\XAtlasGen\bin\Release\net8.0
+pushd .\XAtlasGen\XAtlasGen\bin\Release\net8.0\win-x64
 .\publish\XAtlasGen.exe
 if($?)
 {
