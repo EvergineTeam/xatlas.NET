@@ -1,0 +1,84 @@
+name: Build xatlas Libraries
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            arch: x64
+            cmake-arch: x64
+          - os: ubuntu-latest
+            arch: arm64
+            cmake-arch: aarch64
+          - os: windows-latest
+            arch: x64
+            cmake-arch: x64
+          - os: windows-latest
+            arch: arm64
+            cmake-arch: ARM64
+          - os: macos-latest
+            arch: arm64
+            cmake-arch: arm64
+
+    steps:
+      - name: Checkout xatlas
+        uses: actions/checkout@v4
+        with:
+          repository: jpcy/xatlas
+          submodules: false
+
+      - name: Install dependencies on Ubuntu
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake
+
+      - name: Install Cross-Compilation Tools for ARM64
+        if: matrix.os == 'ubuntu-latest' && matrix.arch == 'arm64'
+        run: |
+          sudo apt-get install -y gcc-aarch64-linux-gnu g++-aarch64-linux-gnu
+
+      - name: Configure xatlas (Linux ARM64)
+        if: matrix.os == 'ubuntu-latest' && matrix.arch == 'arm64'
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_SYSTEM_NAME=Linux \
+            -DCMAKE_SYSTEM_PROCESSOR=aarch64 \
+            -DCMAKE_C_COMPILER=aarch64-linux-gnu-gcc \
+            -DCMAKE_CXX_COMPILER=aarch64-linux-gnu-g++
+
+      - name: Configure xatlas (Linux x64)
+        if: matrix.os == 'ubuntu-latest' && matrix.arch == 'x64'
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Release
+
+      - name: Configure xatlas (macOS ARM64)
+        if: matrix.os == 'macos-latest'
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_OSX_ARCHITECTURES=${{ matrix.cmake-arch }}
+
+      - name: Configure xatlas (Windows)
+        if: matrix.os == 'windows-latest'
+        run: |
+          cmake -S . -B build \
+            -A ${{ matrix.cmake-arch }} \
+            -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build xatlas
+        run: cmake --build build --config Release
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: xatlas-${{ matrix.os }}-${{ matrix.arch }}-artifacts
+          path: build
+          if-no-files-found: ignore
