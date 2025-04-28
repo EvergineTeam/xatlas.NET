@@ -29,7 +29,7 @@ jobs:
       - name: Checkout xatlas
         uses: actions/checkout@v4
         with:
-          repository: jpcy/xatlas
+          repository: EvergineTeam/xatlas
           submodules: false
 
       - name: Install dependencies on Ubuntu
