@@ -9,21 +9,21 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-latest
-            arch: x64
-            cmake-arch: x64
-          - os: ubuntu-latest
-            arch: arm64
-            cmake-arch: aarch64
+        #  - os: ubuntu-latest
+        #    arch: x64
+        #    cmake-arch: x64
+        #  - os: ubuntu-latest
+        #    arch: arm64
+        #    cmake-arch: aarch64
           - os: windows-latest
             arch: x64
             cmake-arch: x64
           - os: windows-latest
             arch: arm64
             cmake-arch: ARM64
-          - os: macos-latest
-            arch: arm64
-            cmake-arch: arm64
+        #  - os: macos-latest
+        #    arch: arm64
+        #    cmake-arch: arm64
 
     steps:
       - name: Checkout xatlas
@@ -79,6 +79,6 @@ jobs:
         with:
           name: xatlas-${{ matrix.os }}
           path: |
-            build/*.dll
-            build/*.so
-            build/*.dylib
+            build/Release/**/*.dll
+            build/Release/**/*.so
+            build/Release/**/*.dylib
