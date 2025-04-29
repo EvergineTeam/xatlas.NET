@@ -7,11 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="horse_statue.obj" />
+    <None Remove="cube.obj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="horse_statue.obj">
+    <Content Include="cube.obj">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

@@ -27,7 +27,7 @@ namespace Test
             var materials = new List<OBJMaterial>();
             var warning = string.Empty;
             var error = string.Empty;
-            using (var stream = new FileStream("horse_statue.obj", FileMode.Open, FileAccess.Read))
+            using (var stream = new FileStream("cube.obj", FileMode.Open, FileAccess.Read))
             using (var srObj = new StreamReader(stream))
             {
                 bool success = OBJLoader.Load(srObj, ref attrib, shapes, materials, ref warning, ref error, null, string.Empty, true, true);
