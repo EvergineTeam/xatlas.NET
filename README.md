@@ -31,6 +31,9 @@ dotnet add package xatlas.NET
 Checkout the test project
 https://github.com/EvergineTeam/xatlas.NET/blob/main/XAtlasGen/Test/Program.cs
 
+![image](https://github.com/user-attachments/assets/4e74fb93-5d1d-4430-bc15-4af4830eef90)
+
+
 ### License
 This binding is provided under the MIT License, matching the license of the original xatlas project.
 
