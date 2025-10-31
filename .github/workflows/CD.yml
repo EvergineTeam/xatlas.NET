@@ -9,6 +9,7 @@ on:
   workflow_dispatch:
 jobs:
   cd:
+    if: github.event_name != 'schedule' || github.ref == 'refs/heads/main'
     uses: EvergineTeam/evergine-standards/.github/workflows/binding-simple-cd.yml@main
     with:
       generator-project: "XAtlasGen/XAtlasGen/XAtlasGen.csproj"  # Path to your generator .csproj
