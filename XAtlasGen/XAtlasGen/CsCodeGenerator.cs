@@ -4,20 +4,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace XAtlasGen
 {
-    public class CsCodeGenerator
+    public static class CsCodeGenerator
     {
-        private CsCodeGenerator()
-        {
-        }
-
-        public static CsCodeGenerator Instance { get; } = new CsCodeGenerator();
-
-        public void Generate(CppCompilation compilation, string outputPath)
+        public static void Generate(CppCompilation compilation, string outputPath)
         {
             Helpers.TypedefList = compilation.Typedefs
                     .Where(t => t.TypeKind == CppTypeKind.Typedef
@@ -28,10 +20,10 @@ namespace XAtlasGen
             GenerateEnums(compilation, outputPath);
             GenerateDelegates(compilation, outputPath);
             GenerateStructs(compilation, outputPath);
-            GenerateFuntions(compilation, outputPath);
+            GenerateFunctions(compilation, outputPath);
         }
 
-        public void GenerateEnums(CppCompilation compilation, string outputPath)
+        public static void GenerateEnums(CppCompilation compilation, string outputPath)
         {
             Debug.WriteLine("Generating Enums...");
 
@@ -67,7 +59,7 @@ namespace XAtlasGen
             }
         }
 
-        private void GenerateDelegates(CppCompilation compilation, string outputPath)
+        private static void GenerateDelegates(CppCompilation compilation, string outputPath)
         {
             Debug.WriteLine("Generating Delegates...");
 
@@ -117,7 +109,7 @@ namespace XAtlasGen
             }
         }
 
-        private void GenerateStructs(CppCompilation compilation, string outputPath)
+        private static void GenerateStructs(CppCompilation compilation, string outputPath)
         {
             Debug.WriteLine("Generating Structs...");
 
@@ -160,11 +152,11 @@ namespace XAtlasGen
             }
         }
 
-        private void GenerateFuntions(CppCompilation compilation, string outputPath)
+        private static void GenerateFunctions(CppCompilation compilation, string outputPath)
         {
             Debug.WriteLine("Generating Functions...");
 
-            using (StreamWriter file = File.CreateText(Path.Combine(outputPath, "Funtions.cs")))
+            using (StreamWriter file = File.CreateText(Path.Combine(outputPath, "Functions.cs")))
             {
                 file.WriteLine("using System;");
                 file.WriteLine("using System.Runtime.InteropServices;\n");
@@ -184,11 +176,12 @@ namespace XAtlasGen
                     string returnType = Helpers.ConvertToCSharpType(cppFunction.ReturnType);
                     returnType = Helpers.ShowAsMarshalType(returnType, Helpers.Family.ret);
                     file.Write($"\t\tpublic static extern {returnType} {cppFunction.Name}(");
-                    foreach (var parameter in cppFunction.Parameters)
+                    for (int i = 0; i < cppFunction.Parameters.Count; i++)
                     {
-                        if (parameter != cppFunction.Parameters.First())
+                        if (i > 0)
                             file.Write(", ");
 
+                        var parameter = cppFunction.Parameters[i];
                         var convertedType = Helpers.ConvertToCSharpType(parameter.Type);
                         convertedType = Helpers.ShowAsMarshalType(convertedType, Helpers.Family.param);
                         file.Write($"{convertedType} {parameter.Name}");

@@ -3,8 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace XAtlasGen
 {
@@ -39,7 +37,7 @@ namespace XAtlasGen
 
             if (type is CppQualifiedType qualifiedType)
             {
-                return GetCsTypeName(qualifiedType.ElementType, isPointer);
+                return ConvertToCSharpType(qualifiedType.ElementType, isPointer);
             }
 
             if (type is CppEnum enumType)
@@ -77,7 +75,7 @@ namespace XAtlasGen
 
             if (type is CppArrayType arrayType)
             {
-                return GetCsTypeName(arrayType.ElementType, isPointer);
+                return ConvertToCSharpType(arrayType.ElementType, isPointer);
             }
 
             return string.Empty;
@@ -85,87 +83,18 @@ namespace XAtlasGen
 
         private static string GetCsTypeName(CppPointerType pointerType)
         {
-            if (pointerType.ElementType is CppQualifiedType qualifiedType)
+            var elementType = pointerType.ElementType;
+            if (elementType is CppQualifiedType qualifiedType)
             {
-                if (qualifiedType.ElementType is CppPrimitiveType primitiveType)
-                {
-                    return GetCsTypeName(primitiveType, true);
-                }
-                else if (qualifiedType.ElementType is CppClass @classType)
-                {
-                    return GetCsTypeName(@classType, true);
-                }
-                else if (qualifiedType.ElementType is CppPointerType subPointerType)
-                {
-                    return GetCsTypeName(subPointerType, true) + "*";
-                }
-                else if (qualifiedType.ElementType is CppTypedef typedef)
-                {
-                    return GetCsTypeName(typedef, true);
-                }
-                else if (qualifiedType.ElementType is CppEnum @enum)
-                {
-                    return GetCsTypeName(@enum, true);
-                }
-
-                return GetCsTypeName(qualifiedType.ElementType, true);
+                elementType = qualifiedType.ElementType;
             }
 
-            return GetCsTypeName(pointerType.ElementType, true);
-        }
-
-        private static string GetCsTypeName(CppType type, bool isPointer = false)
-        {
-            if (type is CppPrimitiveType primitiveType)
+            if (elementType is CppPointerType)
             {
-                return GetCsTypeName(primitiveType, isPointer);
+                return ConvertToCSharpType(elementType) + "*";
             }
 
-            if (type is CppQualifiedType qualifiedType)
-            {
-                return GetCsTypeName(qualifiedType.ElementType, isPointer);
-            }
-
-            if (type is CppEnum enumType)
-            {
-                var enumCsName = enumType.Name;
-                if (isPointer)
-                    return enumCsName + "*";
-
-                return enumCsName;
-            }
-
-            if (type is CppTypedef typedef)
-            {
-                var originalName = typedef.Name;
-                csNameMappings.TryGetValue(originalName, out string typeDefCsName);
-                if (isPointer)
-                    return typeDefCsName + "*";
-
-                return typeDefCsName;
-            }
-
-            if (type is CppClass @class)
-            {
-                var className = @class.Name;
-
-                if (isPointer)
-                    className += "*";
-
-                return className;
-            }
-
-            if (type is CppPointerType pointerType)
-            {
-                return GetCsTypeName(pointerType);
-            }
-
-            if (type is CppArrayType arrayType)
-            {
-                return GetCsTypeName(arrayType.ElementType, isPointer);
-            }
-
-            return string.Empty;
+            return ConvertToCSharpType(elementType, true);
         }
 
         private static string GetCsTypeName(CppPrimitiveType primitiveType, bool isPointer)
@@ -208,7 +137,7 @@ namespace XAtlasGen
                     result = "byte";
                     break;
                 case CppPrimitiveKind.LongLong:
-                    result = "double";
+                    result = "long";
                     break;
                 case CppPrimitiveKind.UnsignedLongLong:
                     result = "ulong";
@@ -291,7 +220,7 @@ namespace XAtlasGen
 
             if (name.Contains("Flags"))
             {
-                return name.Remove(name.Count() - 5);
+                return name.Remove(name.Length - 5);
             }
 
             if (TypedefList.Contains(name))
@@ -335,7 +264,7 @@ namespace XAtlasGen
             }
         }
 
-        public static object ValidParamName(string name, string type, int i)
+        public static string ValidParamName(string name, string type, int i)
         {
             if (string.IsNullOrEmpty(name))
             {

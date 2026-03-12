@@ -28,7 +28,7 @@ namespace XAtlasGen
             else
             {
                 string outputPath = "..\\..\\..\\..\\..\\Evergine.Bindings.XAtlas\\Generated";
-                CsCodeGenerator.Instance.Generate(compilation, outputPath);
+                CsCodeGenerator.Generate(compilation, outputPath);
             }
         }
     }
