@@ -4,113 +4,113 @@ using System.Runtime.InteropServices;
 namespace Evergine.Bindings.XAtlas
 {
 	[StructLayout(LayoutKind.Sequential)]
-	public unsafe struct xatlasChart
+	public unsafe struct Chart
 	{
-		public uint* faceArray;
-		public uint atlasIndex;
-		public uint faceCount;
-		public xatlasChartType type;
-		public uint material;
+		public uint* FaceArray;
+		public uint AtlasIndex;
+		public uint FaceCount;
+		public ChartType Type;
+		public uint Material;
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public unsafe struct xatlasVertex
+	public unsafe struct Vertex
 	{
-		public int atlasIndex;
-		public int chartIndex;
-		public fixed float uv[2];
-		public uint xref;
+		public int AtlasIndex;
+		public int ChartIndex;
+		public fixed float Uv[2];
+		public uint Xref;
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public unsafe struct xatlasMesh
+	public unsafe struct Mesh
 	{
-		public xatlasChart* chartArray;
-		public uint* indexArray;
-		public xatlasVertex* vertexArray;
-		public uint chartCount;
-		public uint indexCount;
-		public uint vertexCount;
+		public Chart* ChartArray;
+		public uint* IndexArray;
+		public Vertex* VertexArray;
+		public uint ChartCount;
+		public uint IndexCount;
+		public uint VertexCount;
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public unsafe struct xatlasAtlas
+	public unsafe struct Atlas
 	{
-		public uint* image;
-		public xatlasMesh* meshes;
-		public float* utilization;
-		public uint width;
-		public uint height;
-		public uint atlasCount;
-		public uint chartCount;
-		public uint meshCount;
-		public float texelsPerUnit;
+		public uint* Image;
+		public Mesh* Meshes;
+		public float* Utilization;
+		public uint Width;
+		public uint Height;
+		public uint AtlasCount;
+		public uint ChartCount;
+		public uint MeshCount;
+		public float TexelsPerUnit;
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public unsafe struct xatlasMeshDecl
+	public unsafe struct MeshDecl
 	{
-		public void* vertexPositionData;
-		public void* vertexNormalData;
-		public void* vertexUvData;
-		public void* indexData;
-		public byte* faceIgnoreData;
-		public uint* faceMaterialData;
-		public byte* faceVertexCount;
-		public uint vertexCount;
-		public uint vertexPositionStride;
-		public uint vertexNormalStride;
-		public uint vertexUvStride;
-		public uint indexCount;
-		public int indexOffset;
-		public uint faceCount;
-		public xatlasIndexFormat indexFormat;
-		public float epsilon;
+		public void* VertexPositionData;
+		public void* VertexNormalData;
+		public void* VertexUvData;
+		public void* IndexData;
+		public byte* FaceIgnoreData;
+		public uint* FaceMaterialData;
+		public byte* FaceVertexCount;
+		public uint VertexCount;
+		public uint VertexPositionStride;
+		public uint VertexNormalStride;
+		public uint VertexUvStride;
+		public uint IndexCount;
+		public int IndexOffset;
+		public uint FaceCount;
+		public IndexFormat IndexFormat;
+		public float Epsilon;
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public unsafe struct xatlasUvMeshDecl
+	public unsafe struct UvMeshDecl
 	{
-		public void* vertexUvData;
-		public void* indexData;
-		public uint* faceMaterialData;
-		public uint vertexCount;
-		public uint vertexStride;
-		public uint indexCount;
-		public int indexOffset;
-		public xatlasIndexFormat indexFormat;
+		public void* VertexUvData;
+		public void* IndexData;
+		public uint* FaceMaterialData;
+		public uint VertexCount;
+		public uint VertexStride;
+		public uint IndexCount;
+		public int IndexOffset;
+		public IndexFormat IndexFormat;
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public unsafe struct xatlasChartOptions
+	public unsafe struct ChartOptions
 	{
-		public xatlasParameterizeFunc paramFunc;
-		public float maxChartArea;
-		public float maxBoundaryLength;
-		public float normalDeviationWeight;
-		public float roundnessWeight;
-		public float straightnessWeight;
-		public float normalSeamWeight;
-		public float textureSeamWeight;
-		public float maxCost;
-		public uint maxIterations;
-		public byte useInputMeshUvs;
-		public byte fixWinding;
+		public IntPtr ParamFunc;
+		public float MaxChartArea;
+		public float MaxBoundaryLength;
+		public float NormalDeviationWeight;
+		public float RoundnessWeight;
+		public float StraightnessWeight;
+		public float NormalSeamWeight;
+		public float TextureSeamWeight;
+		public float MaxCost;
+		public uint MaxIterations;
+		public byte UseInputMeshUvs;
+		public byte FixWinding;
 	}
 
 	[StructLayout(LayoutKind.Sequential)]
-	public unsafe struct xatlasPackOptions
+	public unsafe struct PackOptions
 	{
-		public uint maxChartSize;
-		public uint padding;
-		public float texelsPerUnit;
-		public uint resolution;
-		public byte bilinear;
-		public byte blockAlign;
-		public byte bruteForce;
-		public byte createImage;
-		public byte rotateChartsToAxis;
-		public byte rotateCharts;
+		public uint MaxChartSize;
+		public uint Padding;
+		public float TexelsPerUnit;
+		public uint Resolution;
+		public byte Bilinear;
+		public byte BlockAlign;
+		public byte BruteForce;
+		public byte CreateImage;
+		public byte RotateChartsToAxis;
+		public byte RotateCharts;
 	}
 
 }

@@ -9,6 +9,7 @@ namespace XAtlasGen
     public static class Helpers
     {
         public static List<string> TypedefList;
+        public static List<string> DelegateList;
 
         private static readonly Dictionary<string, string> csNameMappings = new Dictionary<string, string>()
         {
@@ -23,7 +24,7 @@ namespace XAtlasGen
             { "int64_t", "long" },
             { "int64_t*", "long*" },
             { "char", "byte" },
-            { "size_t", "uint" },
+            { "size_t", "nuint" },
             { "intptr_t", "nint" },
             { "uintptr_t", "nuint" },
         };
@@ -202,6 +203,11 @@ namespace XAtlasGen
                             return "byte*";
                     }
                 default:
+                    // Delegate types in struct fields must be IntPtr for blittable layout
+                    if (family == Family.field && DelegateList != null && DelegateList.Any(d => StripPrefix(d) == type))
+                    {
+                        return "IntPtr";
+                    }
                     return type;
             }
         }
@@ -220,7 +226,7 @@ namespace XAtlasGen
 
             if (name.Contains("Flags"))
             {
-                return name.Remove(name.Length - 5);
+                return StripPrefix(name.Remove(name.Length - 5));
             }
 
             if (TypedefList.Contains(name))
@@ -228,7 +234,7 @@ namespace XAtlasGen
                 return "IntPtr";
             }
 
-            return name;
+            return StripPrefix(name);
         }
 
         public static void PrintComments(StreamWriter file, CppComment comment, string tabs = "", bool newLine = false)
@@ -273,17 +279,118 @@ namespace XAtlasGen
                     case "void*":
                         return $"ptr{i}";
                     case "uint":
+                    case "nuint":
                         return $"size{i}";
                     case "byte*":
                         return $"bytePtr{i}";
                     default:
-                        return null;
+                        return $"param{i}";
                 }
             }
             else
             {
-                return name;
+                return EscapeReservedKeyword(name);
             }
+        }
+
+        public static string StripPrefix(string name)
+        {
+            // Strip xatlas / XATLAS_ prefixes (case-sensitive matching)
+            string[] prefixes = { "xatlas", "XATLAS_" };
+            foreach (var prefix in prefixes)
+            {
+                if (name.StartsWith(prefix))
+                {
+                    return name.Substring(prefix.Length);
+                }
+            }
+
+            return name;
+        }
+
+        public static string PascalCaseField(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return name;
+
+            return char.ToUpperInvariant(name[0]) + name.Substring(1);
+        }
+
+        public static string FindCommonPrefix(IEnumerable<string> names)
+        {
+            var list = names.ToList();
+            if (list.Count == 0)
+                return string.Empty;
+
+            var first = list[0];
+            int prefixLen = first.Length;
+
+            foreach (var name in list.Skip(1))
+            {
+                prefixLen = Math.Min(prefixLen, name.Length);
+                for (int i = 0; i < prefixLen; i++)
+                {
+                    if (first[i] != name[i])
+                    {
+                        prefixLen = i;
+                        break;
+                    }
+                }
+            }
+
+            // Snap back to the last underscore boundary
+            var prefix = first.Substring(0, prefixLen);
+            int lastUnderscore = prefix.LastIndexOf('_');
+            if (lastUnderscore >= 0)
+                return prefix.Substring(0, lastUnderscore + 1);
+
+            return string.Empty;
+        }
+
+        public static string ScreamingToPascalCase(string screaming)
+        {
+            if (string.IsNullOrEmpty(screaming))
+                return screaming;
+
+            var parts = screaming.Split('_');
+            var result = string.Empty;
+
+            foreach (var part in parts)
+            {
+                if (part.Length == 0)
+                    continue;
+
+                // Preserve numeric-leading segments as-is (e.g., "2D")
+                if (char.IsDigit(part[0]))
+                {
+                    result += part;
+                }
+                else
+                {
+                    result += char.ToUpperInvariant(part[0]) + part.Substring(1).ToLowerInvariant();
+                }
+            }
+
+            return result;
+        }
+
+        public static string EscapeReservedKeyword(string name)
+        {
+            string[] reserved = { "abstract", "as", "base", "bool", "break", "byte", "case", "catch",
+                "char", "checked", "class", "const", "continue", "decimal", "default", "delegate",
+                "do", "double", "else", "enum", "event", "explicit", "extern", "false", "finally",
+                "fixed", "float", "for", "foreach", "goto", "if", "implicit", "in", "int",
+                "interface", "internal", "is", "lock", "long", "namespace", "new", "null",
+                "object", "operator", "out", "override", "params", "private", "protected", "public",
+                "readonly", "ref", "return", "sbyte", "sealed", "short", "sizeof", "stackalloc",
+                "static", "string", "struct", "switch", "this", "throw", "true", "try", "typeof",
+                "uint", "ulong", "unchecked", "unsafe", "ushort", "using", "virtual", "void",
+                "volatile", "while" };
+
+            if (Array.IndexOf(reserved, name) >= 0)
+                return "@" + name;
+
+            return name;
         }
     }
 }

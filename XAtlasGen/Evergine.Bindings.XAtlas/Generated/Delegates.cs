@@ -3,26 +3,26 @@ using System.Runtime.InteropServices;
 
 namespace Evergine.Bindings.XAtlas
 {
-	public unsafe delegate void xatlasParameterizeFunc(
+	public unsafe delegate void ParameterizeFunc(
 		 float* positions,
 		 float* texcoords,
 		 uint vertexCount,
 		 uint* indices,
 		 uint indexCount);
 
-	public unsafe delegate bool xatlasProgressFunc(
-		 xatlasProgressCategory category,
+	public unsafe delegate bool ProgressFunc(
+		 ProgressCategory category,
 		 int progress,
 		 void* userData);
 
-	public unsafe delegate void* xatlasReallocFunc(
+	public unsafe delegate void* ReallocFunc(
 		 void* ptr0,
-		 uint size1);
+		 nuint size1);
 
-	public unsafe delegate void xatlasFreeFunc(
+	public unsafe delegate void FreeFunc(
 		 void* ptr0);
 
-	public unsafe delegate int xatlasPrintFunc(
+	public unsafe delegate int PrintFunc(
 		 byte* bytePtr0);
 
 }

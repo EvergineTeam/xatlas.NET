@@ -2,36 +2,36 @@ using System;
 
 namespace Evergine.Bindings.XAtlas
 {
-	public enum xatlasChartType
+	public enum ChartType
 	{
-		XATLAS_CHART_TYPE_PLANAR = 0,
-		XATLAS_CHART_TYPE_ORTHO = 1,
-		XATLAS_CHART_TYPE_LSCM = 2,
-		XATLAS_CHART_TYPE_PIECEWISE = 3,
-		XATLAS_CHART_TYPE_INVALID = 4,
+		Planar = 0,
+		Ortho = 1,
+		Lscm = 2,
+		Piecewise = 3,
+		Invalid = 4,
 	}
 
-	public enum xatlasIndexFormat
+	public enum IndexFormat
 	{
-		XATLAS_INDEX_FORMAT_UINT16 = 0,
-		XATLAS_INDEX_FORMAT_UINT32 = 1,
+		Uint16 = 0,
+		Uint32 = 1,
 	}
 
-	public enum xatlasAddMeshError
+	public enum AddMeshError
 	{
-		XATLAS_ADD_MESH_ERROR_SUCCESS = 0,
-		XATLAS_ADD_MESH_ERROR_ERROR = 1,
-		XATLAS_ADD_MESH_ERROR_INDEXOUTOFRANGE = 2,
-		XATLAS_ADD_MESH_ERROR_INVALIDFACEVERTEXCOUNT = 3,
-		XATLAS_ADD_MESH_ERROR_INVALIDINDEXCOUNT = 4,
+		Success = 0,
+		Error = 1,
+		Indexoutofrange = 2,
+		Invalidfacevertexcount = 3,
+		Invalidindexcount = 4,
 	}
 
-	public enum xatlasProgressCategory
+	public enum ProgressCategory
 	{
-		XATLAS_PROGRESS_CATEGORY_ADDMESH = 0,
-		XATLAS_PROGRESS_CATEGORY_COMPUTECHARTS = 1,
-		XATLAS_PROGRESS_CATEGORY_PACKCHARTS = 2,
-		XATLAS_PROGRESS_CATEGORY_BUILDOUTPUTMESHES = 3,
+		Addmesh = 0,
+		Computecharts = 1,
+		Packcharts = 2,
+		Buildoutputmeshes = 3,
 	}
 
 }

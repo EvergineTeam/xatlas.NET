@@ -17,10 +17,61 @@ namespace XAtlasGen
                            && ((CppPointerType)t.ElementType).ElementType.TypeKind != CppTypeKind.Function)
                     .Select(t => t.Name).ToList();
 
+            Helpers.DelegateList = compilation.Typedefs
+                    .Where(t => t.TypeKind == CppTypeKind.Typedef
+                           && t.ElementType is CppPointerType
+                           && ((CppPointerType)t.ElementType).ElementType.TypeKind == CppTypeKind.Function)
+                    .Select(t => t.Name).ToList();
+
+            GenerateConstants(compilation, outputPath);
             GenerateEnums(compilation, outputPath);
             GenerateDelegates(compilation, outputPath);
             GenerateStructs(compilation, outputPath);
             GenerateFunctions(compilation, outputPath);
+        }
+
+        public static void GenerateConstants(CppCompilation compilation, string outputPath)
+        {
+            Debug.WriteLine("Generating Constants...");
+
+            using (StreamWriter file = File.CreateText(Path.Combine(outputPath, "Constants.cs")))
+            {
+                file.WriteLine("using System;\n");
+                file.WriteLine("namespace Evergine.Bindings.XAtlas");
+                file.WriteLine("{");
+                file.WriteLine("\tpublic static partial class XAtlas");
+                file.WriteLine("\t{");
+
+                // Internal/guard macros to skip
+                var skipMacros = new HashSet<string> { "XATLAS_EXPORT_API", "XATLAS_IMPORT_API", "XATLAS_API", "XATLAS_C_H" };
+
+                foreach (var macro in compilation.Macros)
+                {
+                    if (string.IsNullOrEmpty(macro.Value))
+                        continue;
+
+                    if (skipMacros.Contains(macro.Name))
+                        continue;
+
+                    var name = Helpers.StripPrefix(macro.Name);
+                    file.WriteLine($"\t\tpublic const uint {name} = {macro.Value};");
+                }
+
+                // Static const fields (e.g., static const uint32_t xatlasImageChartIndexMask = 0x1FFFFFFF)
+                foreach (var field in compilation.Fields)
+                {
+                    if (field.InitExpression == null)
+                        continue;
+
+                    var csType = Helpers.ConvertToCSharpType(field.Type);
+                    var name = Helpers.StripPrefix(field.Name);
+                    name = Helpers.PascalCaseField(name);
+                    file.WriteLine($"\t\tpublic const {csType} {name} = {field.InitExpression};");
+                }
+
+                file.WriteLine("\t}");
+                file.WriteLine("}");
+            }
         }
 
         public static void GenerateEnums(CppCompilation compilation, string outputPath)
@@ -43,13 +94,22 @@ namespace XAtlasGen
                         file.WriteLine("\t[Flags]");
                     }
 
-                    file.WriteLine($"\tpublic enum {cppEnum.Name}");
+                    var enumCsName = Helpers.StripPrefix(cppEnum.Name);
+                    file.WriteLine($"\tpublic enum {enumCsName}");
                     file.WriteLine("\t{");
+
+                    // Find common prefix among all enum values for stripping
+                    var valueNames = cppEnum.Items.Select(m => m.Name).ToList();
+                    var commonPrefix = Helpers.FindCommonPrefix(valueNames);
 
                     foreach (var member in cppEnum.Items)
                     {
                         Helpers.PrintComments(file, member.Comment, "\t\t", true);
-                        file.WriteLine($"\t\t{member.Name} = {member.Value},");
+                        var valueName = member.Name;
+                        if (!string.IsNullOrEmpty(commonPrefix))
+                            valueName = valueName.Substring(commonPrefix.Length);
+                        valueName = Helpers.ScreamingToPascalCase(valueName);
+                        file.WriteLine($"\t\t{valueName} = {member.Value},");
                     }
 
                     file.WriteLine("\t}\n");
@@ -83,7 +143,8 @@ namespace XAtlasGen
 
                     var returnType = Helpers.ConvertToCSharpType(pointerType.ReturnType);
                     returnType = Helpers.ShowAsMarshalType(returnType, Helpers.Family.ret);
-                    file.Write($"\tpublic unsafe delegate {returnType} {funcPointer.Name}(");
+                    var delegateName = Helpers.StripPrefix(funcPointer.Name);
+                    file.Write($"\tpublic unsafe delegate {returnType} {delegateName}(");
 
                     if (pointerType.Parameters.Count > 0)
                     {
@@ -126,23 +187,25 @@ namespace XAtlasGen
                 {
                     Helpers.PrintComments(file, structure.Comment, "\t");
                     file.WriteLine("\t[StructLayout(LayoutKind.Sequential)]");
-                    file.WriteLine($"\tpublic unsafe struct {structure.Name}");
+                    var structName = Helpers.StripPrefix(structure.Name);
+                    file.WriteLine($"\tpublic unsafe struct {structName}");
                     file.WriteLine("\t{");
                     foreach (var member in structure.Fields)
                     {
                         Helpers.PrintComments(file, member.Comment, "\t\t", true);
                         string type = Helpers.ConvertToCSharpType(member.Type);
                         type = Helpers.ShowAsMarshalType(type, Helpers.Family.field);
+                        var fieldName = Helpers.PascalCaseField(member.Name);
                         // Check if this is an array
                         if (member.Type is CppArrayType)
                         {
                             int count = (member.Type as CppAst.CppArrayType).Size;
-                            file.WriteLine($"\t\tpublic fixed {type} {member.Name}[{count}];");
+                            file.WriteLine($"\t\tpublic fixed {type} {fieldName}[{count}];");
                         }
                         else // default case
                         {
 
-                            file.WriteLine($"\t\tpublic {type} {member.Name};");
+                            file.WriteLine($"\t\tpublic {type} {fieldName};");
                         }
                     }
 
@@ -162,20 +225,20 @@ namespace XAtlasGen
                 file.WriteLine("using System.Runtime.InteropServices;\n");
                 file.WriteLine($"namespace Evergine.Bindings.XAtlas");
                 file.WriteLine("{");
-                file.WriteLine($"\tpublic static unsafe partial class XAtlasNative");
+                file.WriteLine($"\tpublic static unsafe partial class XAtlas");
                 file.WriteLine("\t{");
 
                 foreach (var cppFunction in compilation.Functions)
                 {
                     if ((cppFunction.Flags & CppFunctionFlags.FunctionTemplate) != CppFunctionFlags.None) continue;
                     if ((cppFunction.Flags & CppFunctionFlags.Inline) != CppFunctionFlags.None) continue;
-                    if (cppFunction.Name == "meshopt_setAllocator") continue;
 
                     Helpers.PrintComments(file, cppFunction.Comment, "\t\t");
-                    file.WriteLine($"\t\t[DllImport(\"xatlas\", CallingConvention = CallingConvention.Cdecl)]");
+                    var csMethodName = Helpers.StripPrefix(cppFunction.Name);
+                    file.WriteLine($"\t\t[DllImport(\"xatlas\", EntryPoint = \"{cppFunction.Name}\", CallingConvention = CallingConvention.Cdecl)]");
                     string returnType = Helpers.ConvertToCSharpType(cppFunction.ReturnType);
                     returnType = Helpers.ShowAsMarshalType(returnType, Helpers.Family.ret);
-                    file.Write($"\t\tpublic static extern {returnType} {cppFunction.Name}(");
+                    file.Write($"\t\tpublic static extern {returnType} {csMethodName}(");
                     for (int i = 0; i < cppFunction.Parameters.Count; i++)
                     {
                         if (i > 0)
