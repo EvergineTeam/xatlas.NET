@@ -1,0 +1,33 @@
+# Binding manifest — see https://github.com/EvergineTeam/Evergine.Bindings
+# Schema: https://github.com/EvergineTeam/Evergine.Bindings/blob/main/binding.schema.json
+toolbox: 1.0.0
+
+package:
+  id: Evergine.Bindings.XAtlas
+  project: XAtlasGen/Evergine.Bindings.XAtlas/Evergine.Bindings.XAtlas.csproj
+  target-framework: net10.0
+  runtime-identifier: linux-x64
+
+upstream:
+  kind: git-tree
+  language: cpp
+  project: https://github.com/jpcy/xatlas
+  version-from: none                # xatlas publishes no releases; master is the only reference
+  sources:
+    - repo: jpcy/xatlas
+      ref: master
+      remote-path: source/xatlas/xatlas_c.h
+      path: XAtlasGen/XAtlasGen/Headers/xatlas_c.h
+      format: c-header
+
+generator:
+  project: XAtlasGen/XAtlasGen/XAtlasGen.csproj
+  name: XAtlas
+  output:
+    - XAtlasGen/Evergine.Bindings.XAtlas/Generated
+
+# NOTE — upstream publishes no tags, so there is no version to pin or report. The only
+# identifier available is the commit SHA of master at the time the header was taken;
+# binding-updater should record it in the pull request body so the history is traceable.
+# Native binaries ship under Evergine.Bindings.XAtlas/runtimes and must be rebuilt from
+# the same SHA as any header bump.
